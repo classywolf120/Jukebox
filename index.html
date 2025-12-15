@@ -192,45 +192,34 @@
 
   coverflow.addEventListener('scroll', updateFlow, { passive: true });
   coverflow.addEventListener('touchend', updateFlow, { passive: true });
-  window.addEventListener('resize', updateFlow);
+  window.addEventListener('resize', updateFlow);<script>
+  const volumeSlider = document.getElementById("volumeSlider");
+
+  function applyVolume(v) {
+    // 1) Control any <audio> tag on the page (most reliable)
+    document.querySelectorAll("audio").forEach(a => {
+      a.volume = v;
+      a.muted = false;
+    });
+
+    // 2) If you also have a global audio object, try it too
+    if (typeof audio !== "undefined" && audio) {
+      audio.volume = v;
+      audio.muted = false;
+    }
+  }
+
+  // Apply immediately on load (so it matches the slider position)
+  applyVolume(parseFloat(volumeSlider.value));
+
+  volumeSlider.addEventListener("input", () => {
+    applyVolume(parseFloat(volumeSlider.value));
+  });
 </script>
 
-<!-- Volume Slider -->
-<div id="volumeControl">
-  <input type="range" min="0" max="1" step="0.01" value="1" id="volumeSlider">
-</div>
-
-<style>
-#volumeControl {
-  position: fixed;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0.15;
-  transition: opacity 0.3s ease;
-  z-index: 9999;
-}
-
-#volumeControl:hover {
-  opacity: 0.9;
-}
-
-#volumeSlider {
-  writing-mode: bt-lr;
-  -webkit-appearance: slider-vertical;
-  width: 8px;
-  height: 200px;
-}
-</style>
-
-<script>
-const volumeSlider = document.getElementById("volumeSlider");
-volumeSlider.addEventListener("input", () => {
-  audio.volume = volumeSlider.value;
-});
-</script>
 
 </body>
 </html>
+
 
 
