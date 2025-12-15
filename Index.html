@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+<title>Sports Movie Jukebox</title>
+
+<style>
+  body {
+    margin: 0;
+    background: radial-gradient(circle at center, #444 0%, #2a2a2a 50%, #222 100%);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .coverflow {
+    perspective: 1600px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    height: 100vh;
+    padding: 80px 5% 140px;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+  }
+
+  .coverflow ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 10px;
+    align-items: center;
+    min-width: max-content;
+  }
+
+  .coverflow li {
+    flex: 0 0 auto;
+    width: 380px;
+    max-width: 70vw;
+    scroll-snap-align: center;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+
+  .coverflow li.dummy {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .coverflow li img {
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    background: #000;
+    cursor: pointer;
+    display: block;
+    object-fit: contain;
+
+    box-shadow: 0 40px 80px rgba(0,0,0,0.85);
+
+    -webkit-box-reflect:
+      below 10px linear-gradient(transparent 0%, rgba(0,0,0,0.45) 100%);
+
+    transition:
+      box-shadow 0.35s ease,
+      filter 0.35s ease;
+  }
+
+  /* Subtle NOW PLAYING glow */
+  .coverflow li.playing img {
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.15),
+      0 0 28px rgba(255,220,160,0.45),
+      0 40px 90px rgba(0,0,0,0.95);
+    filter: brightness(1.05);
+  }
+</style>
+</head>
+
+<body>
+
+<div class="coverflow" id="coverflow">
+  <ul>
+    <li class="dummy"></li>
+    <li class="dummy"></li>
+
+    <li id="start"><img src="./Sandlot.jpg"           alt="The Sandlot"></li>
+    <li><img src="./Rocky.jpg"             alt="Rocky"></li>
+    <li><img src="./majorLeague.jpg"       alt="Major League"></li>
+    <li><img src="./Slapshot.jpg"          alt="Slap Shot"></li>
+    <li><img src="./TheNatural.jpg"        alt="The Natural"></li>
+    <li><img src="./Rudy.jpg"              alt="Rudy"></li>
+    <li><img src="./ALeagueofTheirOwn.jpg" alt="A League of Their Own"></li>
+    <li><img src="./BriansSong.jpg"        alt="Brian's Song"></li>
+    <li><img src="./FieldOfDreams.jpg"     alt="Field of Dreams"></li>
+    <li><img src="./BlindSide.jpg"         alt="The Blind Side"></li>
+    <li><img src="./LittleGiants.jpg"      alt="Little Giants"></li>
+    <li><img src="./RookieofTheYear.jpg"   alt="Rookie of the Year"></li>
+    <li><img src="./Caddyshack.jpg"        alt="Caddyshack"></li>
+
+    <li class="dummy"></li>
+    <li class="dummy"></li>
+  </ul>
+</div>
+
+<!-- Hidden audio player -->
+<audio id="audio" preload="auto"></audio>
+
+<script>
+  const coverflow = document.getElementById('coverflow');
+  const items = Array.from(coverflow.querySelectorAll('li:not(.dummy)'));
+  const audio = document.getElementById('audio');
+  const startItem = document.getElementById('start');
+
+  const maxScale = 1.15;
+  const minScale = 0.75;
+  const maxAngle = 45;
+  const minOpacity = 0.7;
+
+  function updateFlow() {
+    const threshold = window.innerWidth * 0.4;
+
+    items.forEach(item => {
+      const rect = item.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const distance = Math.abs(centerX - window.innerWidth / 2);
+
+      const ratio = Math.max(0, 1 - distance / threshold);
+      const scale = minScale + (maxScale - minScale) * ratio;
+      const angle = maxAngle * (1 - ratio) * (centerX < window.innerWidth / 2 ? 1 : -1);
+      const opacity = minOpacity + (1 - minOpacity) * ratio;
+
+      item.style.transform = `rotateY(${angle}deg) scale(${scale})`;
+      item.style.opacity = opacity;
+      item.style.zIndex = Math.round(ratio * 100);
+    });
+  }
+
+  // Center Sandlot on load
+  window.addEventListener('load', () => {
+    if (startItem) {
+      startItem.scrollIntoView({
+        behavior: 'instant',
+        inline: 'center',
+        block: 'nearest'
+      });
+    }
+    updateFlow();
+  });
+
+  // Tap same poster again = pause/resume. Tap different poster = switch.
+  let currentItem = null;
+
+  items.forEach(li => {
+    li.addEventListener('click', () => {
+      const img = li.querySelector('img');
+      if (!img) return;
+
+      const audioSrc = img.src.replace(/\.jpg$/i, '.mp3');
+
+      // SAME poster tapped → toggle pause/play
+      if (currentItem === li) {
+        if (!audio.paused) {
+          audio.pause();
+          li.classList.remove('playing');
+        } else {
+          audio.play();
+          li.classList.add('playing');
+        }
+        return;
+      }
+
+      // DIFFERENT poster tapped → switch tracks
+      items.forEach(i => i.classList.remove('playing'));
+
+      audio.src = audioSrc;
+      audio.play();
+
+      li.classList.add('playing');
+      currentItem = li;
+    }, { passive: true });
+  });
+
+  // Clear glow when track finishes
+  audio.addEventListener('ended', () => {
+    if (currentItem) currentItem.classList.remove('playing');
+    currentItem = null;
+  });
+
+  coverflow.addEventListener('scroll', updateFlow, { passive: true });
+  coverflow.addEventListener('touchend', updateFlow, { passive: true });
+  window.addEventListener('resize', updateFlow);
+</script>
+
+</body>
+</html>
