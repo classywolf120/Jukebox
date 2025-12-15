@@ -1,295 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <title>Sports Movie Jukebox</title>
+<title>Sports Movie Jukebox</title>
 
-  <style>
-    body {
-      margin: 0;
-      background: radial-gradient(circle at center, #444 0%, #2a2a2a 50%, #222 100%);
-      height: 100vh;
-      overflow: hidden;
-      touch-action: pan-x;
-    }
+<style>
+  body {
+    margin: 0;
+    background: radial-gradient(circle at center, #444 0%, #2a2a2a 50%, #222 100%);
+    height: 100vh;
+    overflow: hidden;
+  }
 
-    .coverflow {
-      perspective: 1600px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      scroll-snap-type: x mandatory;
-      height: 100vh;
-      padding: 80px 5% 140px;
-      -webkit-overflow-scrolling: touch;
-      box-sizing: border-box;
-    }
+  .coverflow {
+    perspective: 1600px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    height: 100vh;
+    padding: 80px 5% 140px;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+  }
 
-    .coverflow ul {
-      display: flex;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      gap: 10px;
-      align-items: center;
-      min-width: max-content;
-    }
+  .coverflow ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 10px;
+    align-items: center;
+    min-width: max-content;
+  }
 
-    .coverflow li {
-      flex: 0 0 auto;
-      width: 380px;
-      max-width: 70vw;
-      scroll-snap-align: center;
-      transition: transform 0.25s ease, opacity 0.25s ease;
-    }
+  .coverflow li {
+    flex: 0 0 auto;
+    width: 380px;
+    max-width: 70vw;
+    scroll-snap-align: center;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
 
-    .coverflow li.dummy {
-      visibility: hidden;
-      pointer-events: none;
-    }
+  .coverflow li.dummy {
+    visibility: hidden;
+    pointer-events: none;
+  }
 
-    .coverflow li img {
-      width: 100%;
-      height: auto;
-      border-radius: 20px;
-      background: #000;
-      cursor: pointer;
-      display: block;
-      object-fit: contain;
+  .coverflow li img {
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    background: #000;
+    cursor: pointer;
+    display: block;
+    object-fit: contain;
 
-      box-shadow: 0 40px 80px rgba(0,0,0,0.85);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.85);
 
-      -webkit-box-reflect:
-        below 10px linear-gradient(transparent 0%, rgba(0,0,0,0.45) 100%);
+    -webkit-box-reflect:
+      below 10px linear-gradient(transparent 0%, rgba(0,0,0,0.45) 100%);
 
-      transition: box-shadow 0.35s ease, filter 0.35s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
+    transition:
+      box-shadow 0.35s ease,
+      filter 0.35s ease;
+  }
 
-    /* Subtle NOW PLAYING glow */
-    .coverflow li.playing img {
-      box-shadow:
-        0 0 0 2px rgba(255,255,255,0.15),
-        0 0 28px rgba(255,220,160,0.45),
-        0 40px 90px rgba(0,0,0,0.95);
-      filter: brightness(1.05);
-    }
-
-    /* ===== Volume Slider (vertical, left) ===== */
-    #volumeWrap {
-      position: fixed;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 9999;
-
-      width: 44px;
-      height: 220px;
-      border-radius: 22px;
-
-      background: rgba(0,0,0,0.22);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      opacity: 0.18;
-      transition: opacity 0.25s ease;
-      pointer-events: auto;
-    }
-
-    #volumeWrap.show {
-      opacity: 0.85;
-    }
-
-    #volumeSlider {
-      -webkit-appearance: none;
-      appearance: none;
-
-      width: 180px;              /* becomes height after rotate */
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.45);
-      outline: none;
-
-      transform: rotate(-90deg);
-      touch-action: none;
-    }
-
-    /* thumb */
-    #volumeSlider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.92);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.55);
-    }
-
-    #volumeSlider::-moz-range-thumb {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.92);
-      border: none;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.55);
-    }
-  </style>
+  .coverflow li.playing img {
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.15),
+      0 0 28px rgba(255,220,160,0.45),
+      0 40px 90px rgba(0,0,0,0.95);
+    filter: brightness(1.05);
+  }
+</style>
 </head>
 
 <body>
 
-  <div class="coverflow" id="coverflow">
-    <ul>
-      <li class="dummy"></li>
-      <li class="dummy"></li>
+<div class="coverflow" id="coverflow">
+  <ul>
+    <li class="dummy"></li>
+    <li class="dummy"></li>
 
-      <li id="start"><img src="./Sandlot.jpg"           data-audio="./Sandlot.mp3"           alt="The Sandlot"></li>
-      <li><img src="./Rocky.jpg"             data-audio="./Rocky.mp3"             alt="Rocky"></li>
-      <li><img src="./majorLeague.jpg"       data-audio="./majorLeague.mp3"       alt="Major League"></li>
-      <li><img src="./Slapshot.jpg"          data-audio="./Slapshot.mp3"          alt="Slap Shot"></li>
-      <li><img src="./TheNatural.jpg"        data-audio="./TheNatural.mp3"        alt="The Natural"></li>
-      <li><img src="./Rudy.jpg"              data-audio="./Rudy.mp3"              alt="Rudy"></li>
-      <li><img src="./ALeagueofTheirOwn.jpg" data-audio="./ALeagueofTheirOwn.mp3" alt="A League of Their Own"></li>
-      <li><img src="./BriansSong.jpg"        data-audio="./BriansSong.mp3"        alt="Brian's Song"></li>
-      <li><img src="./FieldOfDreams.jpg"     data-audio="./FieldOfDreams.mp3"     alt="Field of Dreams"></li>
-      <li><img src="./BlindSide.jpg"         data-audio="./BlindSide.mp3"         alt="The Blind Side"></li>
-      <li><img src="./LittleGiants.jpg"      data-audio="./LittleGiants.mp3"      alt="Little Giants"></li>
-      <li><img src="./RookieofTheYear.jpg"   data-audio="./RookieofTheYear.mp3"   alt="Rookie of the Year"></li>
-      <li><img src="./Caddyshack.jpg"        data-audio="./Caddyshack.mp3"        alt="Caddyshack"></li>
+    <li id="start"><img src="./Sandlot.jpg" alt="The Sandlot"></li>
+    <li><img src="./Rocky.jpg" alt="Rocky"></li>
+    <li><img src="./majorLeague.jpg" alt="Major League"></li>
+    <li><img src="./Slapshot.jpg" alt="Slap Shot"></li>
+    <li><img src="./TheNatural.jpg" alt="The Natural"></li>
+    <li><img src="./Rudy.jpg" alt="Rudy"></li>
+    <li><img src="./ALeagueofTheirOwn.jpg" alt="A League of Their Own"></li>
+    <li><img src="./BriansSong.jpg" alt="Brian's Song"></li>
+    <li><img src="./FieldOfDreams.jpg" alt="Field of Dreams"></li>
+    <li><img src="./BlindSide.jpg" alt="The Blind Side"></li>
+    <li><img src="./LittleGiants.jpg" alt="Little Giants"></li>
+    <li><img src="./RookieofTheYear.jpg" alt="Rookie of the Year"></li>
+    <li><img src="./Caddyshack.jpg" alt="Caddyshack"></li>
 
-      <li class="dummy"></li>
-      <li class="dummy"></li>
-    </ul>
-  </div>
+    <li class="dummy"></li>
+    <li class="dummy"></li>
+  </ul>
+</div>
 
-  <!-- Volume control overlay -->
-  <div id="volumeWrap" aria-label="Volume">
-    <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.70" />
-  </div>
+<audio id="audio" preload="auto"></audio>
 
-  <!-- Hidden audio player -->
-  <audio id="audio" preload="auto"></audio>
+<script>
+  const coverflow = document.getElementById('coverflow');
+  const items = Array.from(coverflow.querySelectorAll('li:not(.dummy)'));
+  const audio = document.getElementById('audio');
+  const startItem = document.getElementById('start');
 
-  <script>
-    const coverflow = document.getElementById('coverflow');
-    const items = Array.from(coverflow.querySelectorAll('li:not(.dummy)'));
-    const audio = document.getElementById('audio');
-    const startItem = document.getElementById('start');
+  const maxScale = 1.15;
+  const minScale = 0.75;
+  const maxAngle = 45;
+  const minOpacity = 0.7;
 
-    const maxScale = 1.15;
-    const minScale = 0.75;
-    const maxAngle = 45;
-    const minOpacity = 0.7;
+  function updateFlow() {
+    const threshold = window.innerWidth * 0.4;
 
-    function updateFlow() {
-      const threshold = window.innerWidth * 0.4;
+    items.forEach(item => {
+      const rect = item.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const distance = Math.abs(centerX - window.innerWidth / 2);
 
-      items.forEach(item => {
-        const rect = item.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const distance = Math.abs(centerX - window.innerWidth / 2);
+      const ratio = Math.max(0, 1 - distance / threshold);
+      const scale = minScale + (maxScale - minScale) * ratio;
+      const angle = maxAngle * (1 - ratio) * (centerX < window.innerWidth / 2 ? 1 : -1);
+      const opacity = minOpacity + (1 - minOpacity) * ratio;
 
-        const ratio = Math.max(0, 1 - distance / threshold);
-        const scale = minScale + (maxScale - minScale) * ratio;
-        const angle = maxAngle * (1 - ratio) * (centerX < window.innerWidth / 2 ? 1 : -1);
-        const opacity = minOpacity + (1 - minOpacity) * ratio;
-
-        item.style.transform = `rotateY(${angle}deg) scale(${scale})`;
-        item.style.opacity = opacity;
-        item.style.zIndex = Math.round(ratio * 100);
-      });
-    }
-
-    // Center Sandlot on load
-    window.addEventListener('load', () => {
-      if (startItem) {
-        startItem.scrollIntoView({ behavior: 'instant', inline: 'center', block: 'nearest' });
-      }
-      updateFlow();
+      item.style.transform = `rotateY(${angle}deg) scale(${scale})`;
+      item.style.opacity = opacity;
+      item.style.zIndex = Math.round(ratio * 100);
     });
+  }
 
-    // Tap same poster again = pause/resume. Tap different poster = switch.
-    let currentItem = null;
+  window.addEventListener('load', () => {
+    if (startItem) {
+      startItem.scrollIntoView({ behavior: 'instant', inline: 'center' });
+    }
+    updateFlow();
+  });
 
-    items.forEach(li => {
-      li.addEventListener('click', () => {
-        const img = li.querySelector('img');
-        if (!img) return;
+  let currentItem = null;
 
-        const audioSrc = img.getAttribute('data-audio');
-        if (!audioSrc) return;
+  items.forEach(li => {
+    li.addEventListener('click', () => {
+      const img = li.querySelector('img');
+      if (!img) return;
 
-        // SAME poster tapped → toggle pause/play
-        if (currentItem === li) {
-          if (!audio.paused) {
-            audio.pause();
-            li.classList.remove('playing');
-          } else {
-            audio.play();
-            li.classList.add('playing');
-          }
-          return;
+      const audioSrc = img.src.replace(/\.jpg$/i, '.mp3');
+
+      if (currentItem === li) {
+        if (audio.paused) {
+          audio.play();
+          li.classList.add('playing');
+        } else {
+          audio.pause();
+          li.classList.remove('playing');
         }
+        return;
+      }
 
-        // DIFFERENT poster tapped → switch tracks
-        items.forEach(i => i.classList.remove('playing'));
+      items.forEach(i => i.classList.remove('playing'));
 
-        audio.src = audioSrc;
-        audio.muted = false;
-        audio.play();
+      audio.src = audioSrc;
+      audio.play();
 
-        li.classList.add('playing');
-        currentItem = li;
-      }, { passive: true });
+      li.classList.add('playing');
+      currentItem = li;
     });
+  });
 
-    // Clear glow when track finishes
-    audio.addEventListener('ended', () => {
-      if (currentItem) currentItem.classList.remove('playing');
-      currentItem = null;
-    });
+  audio.addEventListener('ended', () => {
+    if (currentItem) currentItem.classList.remove('playing');
+    currentItem = null;
+  });
 
-    coverflow.addEventListener('scroll', updateFlow, { passive: true });
-    coverflow.addEventListener('touchend', updateFlow, { passive: true });
-    window.addEventListener('resize', updateFlow);
-
-    // ===== Volume control logic =====
-    const volumeWrap = document.getElementById('volumeWrap');
-    const volumeSlider = document.getElementById('volumeSlider');
-
-    function setVolume(v) {
-      // This controls the HTML audio element volume (works in Safari + Home Screen app).
-      audio.volume = v;
-      audio.muted = false;
-    }
-
-    // set initial
-    setVolume(parseFloat(volumeSlider.value));
-
-    // show on touch, then fade
-    let fadeTimer = null;
-    function showVolumeTemporarily() {
-      volumeWrap.classList.add('show');
-      if (fadeTimer) clearTimeout(fadeTimer);
-      fadeTimer = setTimeout(() => volumeWrap.classList.remove('show'), 1800);
-    }
-
-    ['pointerdown','touchstart','mousedown'].forEach(evt => {
-      volumeWrap.addEventListener(evt, showVolumeTemporarily, { passive: true });
-    });
-
-    volumeSlider.addEventListener('input', () => {
-      showVolumeTemporarily();
-      setVolume(parseFloat(volumeSlider.value));
-    }, { passive: true });
-  </script>
+  coverflow.addEventListener('scroll', updateFlow, { passive: true });
+  coverflow.addEventListener('touchend', updateFlow, { passive: true });
+  window.addEventListener('resize', updateFlow);
+</script>
 
 </body>
 </html>
