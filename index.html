@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -271,11 +270,11 @@
     <li class="dummy"></li>
     <li class="dummy"></li>
 
+    <!-- ORDER YOU REQUESTED -->
     <li id="start" data-key="Sandlot"><img src="./Sandlot.jpg" alt="The Sandlot"></li>
     <li data-key="Rocky"><img src="./Rocky.jpg" alt="Rocky"></li>
     <li data-key="majorLeague"><img src="./majorLeague.jpg" alt="Major League"></li>
     <li data-key="Slapshot"><img src="./Slapshot.jpg" alt="Slap Shot"></li>
-    <li data-key="TheRookie"><img src="./TheRookie.jpg" alt="The Rookie"></li>
     <li data-key="TheNatural"><img src="./TheNatural.jpg" alt="The Natural"></li>
     <li data-key="Rudy"><img src="./Rudy.jpg" alt="Rudy"></li>
     <li data-key="ALeagueofTheirOwn"><img src="./ALeagueofTheirOwn.jpg" alt="A League of Their Own"></li>
@@ -284,6 +283,7 @@
     <li data-key="BlindSide"><img src="./BlindSide.jpg" alt="The Blind Side"></li>
     <li data-key="LittleGiants"><img src="./LittleGiants.jpg" alt="Little Giants"></li>
     <li data-key="RookieofTheYear"><img src="./RookieofTheYear.jpg" alt="Rookie of the Year"></li>
+    <li data-key="TheRookie"><img src="./TheRookie.jpg" alt="The Rookie"></li>
     <li data-key="Caddyshack"><img src="./Caddyshack.jpg" alt="Caddyshack"></li>
 
     <li class="dummy"></li>
@@ -352,35 +352,51 @@
   coverflow.addEventListener('touchend', updateFlow, { passive: true });
   window.addEventListener('resize', updateFlow);
 
-  // ===== Submenu definitions (YOUR NEW FILES) =====
-  // IMPORTANT: These assume you uploaded MP3 files with these exact names + ".mp3"
-  // Example: Sandlot_clip_KillingMe.mp3
+  // Helper: base track for a poster = same name as its JPG, but .mp3
+  function baseMp3FromPoster(li) {
+    const img = li.querySelector("img");
+    return img ? img.getAttribute("src").replace(/\.jpg$/i, ".mp3") : null;
+  }
+
+  // ===== Submenu definitions (includes ORIGINAL song as first item) =====
   const submenus = {
     "Sandlot": {
       title: "The Sandlot",
       tracks: [
+        { icon: "🎵", label: "Original Theme", file: "./Sandlot.mp3", meta: "Song" },               // <-- magic moment
         { icon: "🔊", label: "Bambino", file: "./Sandlot_clip_Bambino.mp3", meta: "Clip" },
         { icon: "🔊", label: "Killing Me, Smalls", file: "./Sandlot_clip_KillingMe.mp3", meta: "Clip" },
         { icon: "🎵", label: "Tequila", file: "./Sandlot_Tequila.mp3", meta: "Song" },
         { icon: "🎵", label: "America the Beautiful", file: "./Sandlot_America.mp3", meta: "Song" }
       ]
     },
-    "FieldOfDreams": {
-      title: "Field of Dreams",
+    "Rocky": {
+      title: "Rocky",
       tracks: [
-        { icon: "🔊", label: "If You Build It", file: "./Field_clip_BuiltIt.mp3", meta: "Clip" }
+        { icon: "🎵", label: "Original Theme", file: "./Rocky.mp3", meta: "Song" },                 // <-- eye of the tiger
+        { icon: "🔊", label: "Mickey", file: "./Rocky_clip_Mickey.mp3", meta: "Clip" },
+        { icon: "🎵", label: "Gonna Fly Now", file: "./Rocky_Flynow.mp3", meta: "Song" }
       ]
     },
     "majorLeague": {
       title: "Major League",
       tracks: [
+        { icon: "🎵", label: "Original Theme", file: "./majorLeague.mp3", meta: "Song" },           // <-- wild thing
         { icon: "🔊", label: "Jesus Christ", file: "./MajorLeague_clip_JesusChrist.mp3", meta: "Clip" },
         { icon: "🎵", label: "Pennant Fever", file: "./MajorLeague_PennantFever.mp3", meta: "Song" }
+      ]
+    },
+    "FieldOfDreams": {
+      title: "Field of Dreams",
+      tracks: [
+        { icon: "🎵", label: "Original Theme", file: "./FieldOfDreams.mp3", meta: "Song" },         // <-- original score cue
+        { icon: "🔊", label: "If You Build It", file: "./Field_clip_BuiltIt.mp3", meta: "Clip" }
       ]
     },
     "Caddyshack": {
       title: "Caddyshack",
       tracks: [
+        { icon: "🎵", label: "Original Theme", file: "./Caddyshack.mp3", meta: "Song" },            // <-- I'm Alright
         { icon: "🔊", label: "Hat Soup", file: "./Caddyshack_clip_HatSoup.mp3", meta: "Clip" },
         { icon: "🔊", label: "Pool / Pond", file: "./Caddyshack_clip_PoolPond.mp3", meta: "Clip" }
       ]
@@ -388,15 +404,9 @@
     "Rudy": {
       title: "Rudy",
       tracks: [
+        { icon: "🎵", label: "Original Theme", file: "./Rudy.mp3", meta: "Song" },                  // <-- take us out
         { icon: "🔊", label: "Locker Room", file: "./Rudy_clip_Lockerroom.mp3", meta: "Clip" },
         { icon: "🔊", label: "Janitor", file: "./Rudy_clip_Janitor.mp3", meta: "Clip" }
-      ]
-    },
-    "Rocky": {
-      title: "Rocky",
-      tracks: [
-        { icon: "🔊", label: "Mickey", file: "./Rocky_clip_Mickey.mp3", meta: "Clip" },
-        { icon: "🎵", label: "Gonna Fly Now", file: "./Rocky_Flynow.mp3", meta: "Song" }
       ]
     }
   };
@@ -414,11 +424,44 @@
   const sheetSubtitle = document.getElementById("sheetSubtitle");
   const trackList = document.getElementById("trackList");
 
+  const trayState = {
+    posterLi: null,
+    movieKey: null,
+    currentFile: null
+  };
+
+  function clearPosterGlows() {
+    items.forEach(i => i.classList.remove("playing"));
+  }
+
+  function playFile(file, posterLi) {
+    if (!file) return;
+
+    // same file tapped again -> toggle play/pause
+    if (trayState.currentFile === file) {
+      if (audio.paused) {
+        audio.play();
+        if (posterLi) posterLi.classList.add("playing");
+      } else {
+        audio.pause();
+        if (posterLi) posterLi.classList.remove("playing");
+      }
+      return;
+    }
+
+    trayState.currentFile = file;
+
+    clearPosterGlows();
+    if (posterLi) posterLi.classList.add("playing");
+
+    audio.src = file;
+    audio.play().catch(() => {});
+  }
+
   function openTray(movieKey, posterLi) {
     const menu = submenus[movieKey];
     if (!menu) return;
 
-    // remember which poster this tray belongs to (for glow)
     trayState.movieKey = movieKey;
     trayState.posterLi = posterLi;
 
@@ -467,8 +510,7 @@
 
       btn.addEventListener("click", () => {
         playFile(t.file, posterLi);
-        // refresh tray highlighting
-        openTray(movieKey, posterLi);
+        openTray(movieKey, posterLi); // refresh highlight
       });
 
       trackList.appendChild(btn);
@@ -488,53 +530,15 @@
     if (e.target === overlay) closeTray();
   });
 
-  // ===== Playing logic =====
-  const trayState = {
-    currentPoster: null,
-    posterLi: null,
-    movieKey: null,
-    currentFile: null
-  };
-
-  function clearPosterGlows() {
-    items.forEach(i => i.classList.remove("playing"));
-  }
-
-  function playFile(file, posterLi) {
-    if (!file) return;
-
-    // same file tapped again -> toggle play/pause
-    if (trayState.currentFile === file) {
-      if (audio.paused) {
-        audio.play();
-        if (posterLi) posterLi.classList.add("playing");
-      } else {
-        audio.pause();
-        if (posterLi) posterLi.classList.remove("playing");
-      }
-      return;
-    }
-
-    trayState.currentFile = file;
-
-    clearPosterGlows();
-    if (posterLi) posterLi.classList.add("playing");
-
-    audio.src = file;
-    audio.play().catch(() => {
-      // iOS usually allows because this is triggered by a tap.
-    });
-  }
-
+  // Clear glow when track finishes
   audio.addEventListener("ended", () => {
-    // remove glow after the track ends
     clearPosterGlows();
     trayState.currentFile = null;
   });
 
   // ===== Tap behavior =====
   // - If movie has submenu: tap opens tray (no autoplay)
-  // - Else: tap plays matching MP3 (same behavior as your original)
+  // - Else: tap plays matching MP3 (poster.jpg -> poster.mp3)
   let currentItem = null;
 
   items.forEach(li => {
@@ -550,8 +554,9 @@
         return;
       }
 
-      // single-track movies: derive MP3 from JPG filename
-      const audioSrc = img.src.replace(/\.jpg$/i, '.mp3');
+      // single-track movies
+      const audioSrc = baseMp3FromPoster(li);
+      if (!audioSrc) return;
 
       if (currentItem === li) {
         if (audio.paused) {
@@ -566,7 +571,7 @@
 
       items.forEach(i => i.classList.remove('playing'));
 
-      trayState.currentFile = audioSrc; // keep state consistent
+      trayState.currentFile = audioSrc;
       audio.src = audioSrc;
       audio.play();
 
