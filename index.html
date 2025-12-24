@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  
+
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  
+
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
@@ -17,6 +17,7 @@
     background: radial-gradient(circle at center, #444 0%, #2a2a2a 50%, #222 100%);
     height: 100vh;
     overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
   .coverflow {
@@ -46,6 +47,7 @@
     max-width: 70vw;
     scroll-snap-align: center;
     transition: transform 0.25s ease, opacity 0.25s ease;
+    position: relative;
   }
 
   .coverflow li.dummy {
@@ -72,12 +74,191 @@
       filter 0.35s ease;
   }
 
+  /* Subtle NOW PLAYING glow */
   .coverflow li.playing img {
     box-shadow:
       0 0 0 2px rgba(255,255,255,0.15),
       0 0 28px rgba(255,220,160,0.45),
       0 40px 90px rgba(0,0,0,0.95);
     filter: brightness(1.05);
+  }
+
+  /* ☰ badge for posters with submenu */
+  .coverflow li.has-menu::after {
+    content: "☰";
+    position: absolute;
+    right: 16px;
+    bottom: 18px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.92);
+    font-weight: 800;
+    font-size: 16px;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  /* ===== Tray Overlay ===== */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+    z-index: 999;
+  }
+  .overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sheet {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 24px);
+    width: min(720px, 94vw);
+    background: rgba(18,18,18,0.94);
+    color: #fff;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+    padding: 14px 14px 18px;
+    transition: transform 220ms ease;
+  }
+  .overlay.show .sheet {
+    transform: translate(-50%, 0);
+  }
+
+  .handle {
+    width: 44px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.22);
+    margin: 2px auto 10px;
+  }
+
+  .sheetHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 6px 12px;
+  }
+
+  .sheetTitleWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .sheetTitle {
+    font-size: 16px;
+    font-weight: 750;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sheetSubtitle {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .closeBtn {
+    appearance: none;
+    border: none;
+    background: rgba(255,255,255,0.10);
+    color: #fff;
+    width: 40px;
+    height: 34px;
+    border-radius: 12px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .trackList {
+    display: grid;
+    gap: 10px;
+    padding: 0 6px;
+  }
+
+  .trackBtn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    border-radius: 14px;
+    padding: 12px 12px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .trackLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .iconPill {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: rgba(255,255,255,0.10);
+    flex: 0 0 auto;
+    font-size: 16px;
+  }
+
+  .trackText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .trackName {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .trackMeta {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nowPlayingTag {
+    font-size: 12px;
+    color: rgba(255,220,160,0.95);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .trackBtn.playing {
+    border-color: rgba(255,220,160,0.35);
+    background: rgba(255,220,160,0.10);
+  }
+  .trackBtn.playing .iconPill {
+    background: rgba(255,220,160,0.18);
   }
 </style>
 </head>
@@ -89,20 +270,20 @@
     <li class="dummy"></li>
     <li class="dummy"></li>
 
-    <li id="start"><img src="./Sandlot.jpg" alt="The Sandlot"></li>
-    <li><img src="./Rocky.jpg" alt="Rocky"></li>
-    <li><img src="./majorLeague.jpg" alt="Major League"></li>
-    <li><img src="./Slapshot.jpg" alt="Slap Shot"></li>
-    <li><img src="./TheNatural.jpg" alt="The Natural"></li>
-    <li><img src="./Rudy.jpg" alt="Rudy"></li>
-    <li><img src="./ALeagueofTheirOwn.jpg" alt="A League of Their Own"></li>
-    <li><img src="./BriansSong.jpg" alt="Brian's Song"></li>
-    <li><img src="./FieldOfDreams.jpg" alt="Field of Dreams"></li>
-    <li><img src="./BlindSide.jpg" alt="The Blind Side"></li>
-    <li><img src="./LittleGiants.jpg" alt="Little Giants"></li>
-    <li><img src="./RookieofTheYear.jpg" alt="Rookie of the Year"></li>
-    <li><img src="./TheRookie.jpg" alt="The Rookie"></li>
-    <li><img src="./Caddyshack.jpg" alt="Caddyshack"></li>
+    <li id="start" data-key="Sandlot"><img src="./Sandlot.jpg" alt="The Sandlot"></li>
+    <li data-key="Rocky"><img src="./Rocky.jpg" alt="Rocky"></li>
+    <li data-key="majorLeague"><img src="./majorLeague.jpg" alt="Major League"></li>
+    <li data-key="Slapshot"><img src="./Slapshot.jpg" alt="Slap Shot"></li>
+    <li data-key="TheRookie"><img src="./TheRookie.jpg" alt="The Rookie"></li>
+    <li data-key="TheNatural"><img src="./TheNatural.jpg" alt="The Natural"></li>
+    <li data-key="Rudy"><img src="./Rudy.jpg" alt="Rudy"></li>
+    <li data-key="ALeagueofTheirOwn"><img src="./ALeagueofTheirOwn.jpg" alt="A League of Their Own"></li>
+    <li data-key="BriansSong"><img src="./BriansSong.jpg" alt="Brian's Song"></li>
+    <li data-key="FieldOfDreams"><img src="./FieldOfDreams.jpg" alt="Field of Dreams"></li>
+    <li data-key="BlindSide"><img src="./BlindSide.jpg" alt="The Blind Side"></li>
+    <li data-key="LittleGiants"><img src="./LittleGiants.jpg" alt="Little Giants"></li>
+    <li data-key="RookieofTheYear"><img src="./RookieofTheYear.jpg" alt="Rookie of the Year"></li>
+    <li data-key="Caddyshack"><img src="./Caddyshack.jpg" alt="Caddyshack"></li>
 
     <li class="dummy"></li>
     <li class="dummy"></li>
@@ -111,12 +292,30 @@
 
 <audio id="audio" preload="auto"></audio>
 
+<!-- Tray Overlay -->
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Movie tracks">
+    <div class="handle"></div>
+
+    <div class="sheetHeader">
+      <div class="sheetTitleWrap">
+        <div class="sheetTitle" id="sheetTitle">Movie</div>
+        <div class="sheetSubtitle" id="sheetSubtitle">Pick a song / clip</div>
+      </div>
+      <button class="closeBtn" id="closeBtn" aria-label="Close">✕</button>
+    </div>
+
+    <div class="trackList" id="trackList"></div>
+  </div>
+</div>
+
 <script>
   const coverflow = document.getElementById('coverflow');
   const items = Array.from(coverflow.querySelectorAll('li:not(.dummy)'));
   const audio = document.getElementById('audio');
   const startItem = document.getElementById('start');
 
+  // ===== Coverflow animation constants =====
   const maxScale = 1.15;
   const minScale = 0.75;
   const maxAngle = 45;
@@ -143,11 +342,198 @@
 
   window.addEventListener('load', () => {
     if (startItem) {
-      startItem.scrollIntoView({ behavior: 'instant', inline: 'center' });
+      startItem.scrollIntoView({ behavior: 'instant', inline: 'center', block: 'nearest' });
     }
     updateFlow();
   });
 
+  coverflow.addEventListener('scroll', updateFlow, { passive: true });
+  coverflow.addEventListener('touchend', updateFlow, { passive: true });
+  window.addEventListener('resize', updateFlow);
+
+  // ===== Submenu definitions (YOUR NEW FILES) =====
+  // IMPORTANT: These assume you uploaded MP3 files with these exact names + ".mp3"
+  // Example: Sandlot_clip_KillingMe.mp3
+  const submenus = {
+    "Sandlot": {
+      title: "The Sandlot",
+      tracks: [
+        { icon: "🔊", label: "Bambino", file: "./Sandlot_clip_Bambino.mp3", meta: "Clip" },
+        { icon: "🔊", label: "Killing Me, Smalls", file: "./Sandlot_clip_KillingMe.mp3", meta: "Clip" },
+        { icon: "🎵", label: "Tequila", file: "./Sandlot_Tequila.mp3", meta: "Song" },
+        { icon: "🎵", label: "America the Beautiful", file: "./Sandlot_America.mp3", meta: "Song" }
+      ]
+    },
+    "FieldOfDreams": {
+      title: "Field of Dreams",
+      tracks: [
+        { icon: "🔊", label: "If You Build It", file: "./Field_clip_BuiltIt.mp3", meta: "Clip" }
+      ]
+    },
+    "majorLeague": {
+      title: "Major League",
+      tracks: [
+        { icon: "🔊", label: "Jesus Christ", file: "./MajorLeague_clip_JesusChrist.mp3", meta: "Clip" },
+        { icon: "🎵", label: "Pennant Fever", file: "./MajorLeague_PennantFever.mp3", meta: "Song" }
+      ]
+    },
+    "Caddyshack": {
+      title: "Caddyshack",
+      tracks: [
+        { icon: "🔊", label: "Hat Soup", file: "./Caddyshack_clip_HatSoup.mp3", meta: "Clip" },
+        { icon: "🔊", label: "Pool / Pond", file: "./Caddyshack_clip_PoolPond.mp3", meta: "Clip" }
+      ]
+    },
+    "Rudy": {
+      title: "Rudy",
+      tracks: [
+        { icon: "🔊", label: "Locker Room", file: "./Rudy_clip_Lockerroom.mp3", meta: "Clip" },
+        { icon: "🔊", label: "Janitor", file: "./Rudy_clip_Janitor.mp3", meta: "Clip" }
+      ]
+    },
+    "Rocky": {
+      title: "Rocky",
+      tracks: [
+        { icon: "🔊", label: "Mickey", file: "./Rocky_clip_Mickey.mp3", meta: "Clip" },
+        { icon: "🎵", label: "Gonna Fly Now", file: "./Rocky_Flynow.mp3", meta: "Song" }
+      ]
+    }
+  };
+
+  // Add ☰ badge only to movies that have a submenu
+  items.forEach(li => {
+    const key = li.dataset.key;
+    if (key && submenus[key]) li.classList.add("has-menu");
+  });
+
+  // ===== Tray DOM =====
+  const overlay = document.getElementById("overlay");
+  const closeBtn = document.getElementById("closeBtn");
+  const sheetTitle = document.getElementById("sheetTitle");
+  const sheetSubtitle = document.getElementById("sheetSubtitle");
+  const trackList = document.getElementById("trackList");
+
+  function openTray(movieKey, posterLi) {
+    const menu = submenus[movieKey];
+    if (!menu) return;
+
+    // remember which poster this tray belongs to (for glow)
+    trayState.movieKey = movieKey;
+    trayState.posterLi = posterLi;
+
+    sheetTitle.textContent = menu.title;
+    sheetSubtitle.textContent = "Pick a song / clip";
+
+    trackList.innerHTML = "";
+
+    menu.tracks.forEach(t => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "trackBtn";
+
+      if (trayState.currentFile === t.file) btn.classList.add("playing");
+
+      const left = document.createElement("div");
+      left.className = "trackLeft";
+
+      const pill = document.createElement("div");
+      pill.className = "iconPill";
+      pill.textContent = t.icon;
+
+      const text = document.createElement("div");
+      text.className = "trackText";
+
+      const name = document.createElement("div");
+      name.className = "trackName";
+      name.textContent = t.label;
+
+      const meta = document.createElement("div");
+      meta.className = "trackMeta";
+      meta.textContent = t.meta || "";
+
+      text.appendChild(name);
+      if (t.meta) text.appendChild(meta);
+
+      left.appendChild(pill);
+      left.appendChild(text);
+
+      const right = document.createElement("div");
+      right.className = "nowPlayingTag";
+      right.textContent = (trayState.currentFile === t.file) ? "NOW PLAYING" : "";
+
+      btn.appendChild(left);
+      btn.appendChild(right);
+
+      btn.addEventListener("click", () => {
+        playFile(t.file, posterLi);
+        // refresh tray highlighting
+        openTray(movieKey, posterLi);
+      });
+
+      trackList.appendChild(btn);
+    });
+
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
+  }
+
+  function closeTray() {
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden", "true");
+  }
+
+  closeBtn.addEventListener("click", closeTray);
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) closeTray();
+  });
+
+  // ===== Playing logic =====
+  const trayState = {
+    currentPoster: null,
+    posterLi: null,
+    movieKey: null,
+    currentFile: null
+  };
+
+  function clearPosterGlows() {
+    items.forEach(i => i.classList.remove("playing"));
+  }
+
+  function playFile(file, posterLi) {
+    if (!file) return;
+
+    // same file tapped again -> toggle play/pause
+    if (trayState.currentFile === file) {
+      if (audio.paused) {
+        audio.play();
+        if (posterLi) posterLi.classList.add("playing");
+      } else {
+        audio.pause();
+        if (posterLi) posterLi.classList.remove("playing");
+      }
+      return;
+    }
+
+    trayState.currentFile = file;
+
+    clearPosterGlows();
+    if (posterLi) posterLi.classList.add("playing");
+
+    audio.src = file;
+    audio.play().catch(() => {
+      // iOS usually allows because this is triggered by a tap.
+    });
+  }
+
+  audio.addEventListener("ended", () => {
+    // remove glow after the track ends
+    clearPosterGlows();
+    trayState.currentFile = null;
+  });
+
+  // ===== Tap behavior =====
+  // - If movie has submenu: tap opens tray (no autoplay)
+  // - Else: tap plays matching MP3 (same behavior as your original)
   let currentItem = null;
 
   items.forEach(li => {
@@ -155,6 +541,15 @@
       const img = li.querySelector('img');
       if (!img) return;
 
+      const key = li.dataset.key;
+
+      // submenu movies
+      if (key && submenus[key]) {
+        openTray(key, li);
+        return;
+      }
+
+      // single-track movies: derive MP3 from JPG filename
       const audioSrc = img.src.replace(/\.jpg$/i, '.mp3');
 
       if (currentItem === li) {
@@ -170,25 +565,15 @@
 
       items.forEach(i => i.classList.remove('playing'));
 
+      trayState.currentFile = audioSrc; // keep state consistent
       audio.src = audioSrc;
       audio.play();
 
       li.classList.add('playing');
       currentItem = li;
-    });
+    }, { passive: true });
   });
-
-  audio.addEventListener('ended', () => {
-    if (currentItem) currentItem.classList.remove('playing');
-    currentItem = null;
-  });
-
-  coverflow.addEventListener('scroll', updateFlow, { passive: true });
-  coverflow.addEventListener('touchend', updateFlow, { passive: true });
-  window.addEventListener('resize', updateFlow);
 </script>
 
 </body>
 </html>
-
-
