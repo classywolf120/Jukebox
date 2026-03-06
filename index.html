@@ -46,7 +46,7 @@
     width: 380px;
     max-width: 70vw;
     scroll-snap-align: center;
-    transition: transform 0.12s linear;
+    transition: none;
     position: relative;
     will-change: transform;
     transform-style: preserve-3d;
@@ -340,7 +340,7 @@ body.dragging .coverflow li {
       const opacity = minOpacity + (1 - minOpacity) * ratio;
 
       item.style.transform = `rotateY(${angle}deg) scale(${scale})`;
-      item.style.opacity = 1;
+      item.style.opacity = opacity;
       item.style.zIndex = 100 - i;
     });
   }
@@ -608,6 +608,7 @@ window.addEventListener('resize', updateFlow);
 
 </body>
 </html>
+
 
 
 
