@@ -51,7 +51,9 @@
     will-change: transform;
     transform-style: preserve-3d;
   }
-
+body.dragging .coverflow li {
+  transition: none !important;
+}
   .coverflow li.dummy {
     visibility: hidden;
     pointer-events: none;
@@ -350,9 +352,30 @@
     updateFlow();
   });
 
-  coverflow.addEventListener('scroll', updateFlow, { passive: true });
-  coverflow.addEventListener('touchend', updateFlow, { passive: true });
-  window.addEventListener('resize', updateFlow);
+let dragTimer;
+
+coverflow.addEventListener('touchstart', () => {
+  document.body.classList.add('dragging');
+}, { passive: true });
+
+coverflow.addEventListener('scroll', () => {
+  updateFlow();
+
+  clearTimeout(dragTimer);
+  dragTimer = setTimeout(() => {
+    document.body.classList.remove('dragging');
+    updateFlow();
+  }, 80);
+}, { passive: true });
+
+coverflow.addEventListener('touchend', () => {
+  setTimeout(() => {
+    document.body.classList.remove('dragging');
+    updateFlow();
+  }, 80);
+}, { passive: true });
+
+window.addEventListener('resize', updateFlow);
 
   // Helper: base track for a poster = same name as its JPG, but .mp3
   function baseMp3FromPoster(li) {
@@ -585,6 +608,7 @@
 
 </body>
 </html>
+
 
 
 
