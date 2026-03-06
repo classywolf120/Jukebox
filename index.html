@@ -329,7 +329,7 @@ body.dragging .coverflow li {
   function updateFlow() {
     const threshold = window.innerWidth * 0.4;
 
-    items.forEach(item => {
+    items.forEach((item, i) => {
       const rect = item.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const distance = Math.abs(centerX - window.innerWidth / 2);
@@ -341,7 +341,7 @@ body.dragging .coverflow li {
 
       item.style.transform = `rotateY(${angle}deg) scale(${scale})`;
       item.style.opacity = opacity;
-      item.style.zIndex = Math.round(ratio * 100);
+      item.style.zIndex = 100 - i;
     });
   }
 
@@ -608,6 +608,7 @@ window.addEventListener('resize', updateFlow);
 
 </body>
 </html>
+
 
 
 
